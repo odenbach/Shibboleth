@@ -14,7 +14,7 @@ Install Shibboleth Apache modul on Debian/Ubuntu linux:
 * `sudo a2enmod shib2`
 * `sudo systemctl restart apache2`
 
-### Apache vhost konfig
+### Apache vhost config
 
 ```apache
 <Location /index.php/*:PluggableAuthLogin>
@@ -25,7 +25,7 @@ Install Shibboleth Apache modul on Debian/Ubuntu linux:
 </Location>
 ```
 
-### Apache vhost konfig FastCGI (FPM)
+### Apache vhost config FastCGI (FPM)
 
 You should replace `ShibRequestSetting applicationId default` with `ShibUseHeaders On`.
 
@@ -71,6 +71,7 @@ In addition, the following optional configuration variable is provided:
 Flag | Default | Description
 ---- | ------- | -----------
 $wgShibboleth_GroupMap | null | Mapping from SAML attributes to MediaWiki groups of the form: `$wgShibboleth_GroupMap = array('attr_name' => 'groups','sysop' => 'wiki_admin','bureaucrat' => 'wiki_editor', '...');` No group mapping is performed if $wgSimpleSAMLphp_GroupMap is null.
+$wgShibboleth_GroupMap_attr_may_be_empty | false | Allow empty group mapping attribute. Is you use an entitlement for group mapping this is needed to enable people without any entitlement to login.
 
 ### Group mapping
 
@@ -95,5 +96,6 @@ Shibboleth Single Logout (SLO) URL structure
 `https://wiki.example.org/Shibboleth.sso/Logout?return=https://wiki.example.org/index.php`
 
 ## Known Bugs
+(fixed since PluggableAuth >= 5.5)
 
 The very first time when the user authenticates with Shibboleth, **$wgShibboleth_GroupMap** does not take effect due [T184736](https://phabricator.wikimedia.org/T184736) bug. It requires a relogin (logout then login) to be able to map the given configuration.

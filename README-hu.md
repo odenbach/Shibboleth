@@ -94,6 +94,9 @@ $wgShibboleth_GroupMap = array(
   'bureaucrat' => 'employee@niif.hu'
 );
 
+# Állítsa "true"-ra, ha esetleg nincs ott a leképezési attribútum (pl. entitlement)
+$ wgShibboleth_GroupMap_attr_may_be_empty = true;
+
 # Single Logout (SLO) base URL
 $wgShibboleth_Logout_Base_Url = "https://wiki.example.org";
 
@@ -113,6 +116,8 @@ A fent említett $wgShibboleth_GroupMap tömb értékei:
  * `bureaucrat` a bürokraták csoporthoz tartozó érték
 
 A SAML bejelentkezéshez nem kötelező megadni csoportkezelést, ebben az esetben kézzel kell kiosztani a különbőző jogosultságokat.
+
+Ha olyan attribútumot szeretne használni a csoportleképezéshez, amely nem mindenki számára elérhető (például egy jogosultság), akkor engedélyeznie kell egy üres csoportleképezési attribútumot. Ellenkező esetben hibaüzenetet kap, ha a csoportot meghatározó attribútum nem érhető el.
 
 ### Single Logout (SLO)
 

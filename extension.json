@@ -20,10 +20,11 @@
 		]
 	},
 	"config": {
-		"ShibDisplayName": "displayName",
-		"ShibEmail": "mail",
-		"ShibUsername": "eppn",
+		"Shibboleth_Username": "eppn",
+		"Shibboleth_Email": "mail",
+		"Shibboleth_DisplayName": "displayName",
 		"Shibboleth_GroupMap": null,
+		"Shibboleth_GroupMap_attr_may_be_empty": false,
 		"PluggableAuth_Class": "Shibboleth"
 	},
 	"AutoloadClasses": {

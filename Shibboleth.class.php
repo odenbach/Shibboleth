@@ -31,6 +31,12 @@ class Shibboleth extends PluggableAuth {
             $this->checkGroupMap();
         }
 
+	$userId = MediaWiki\MediaWikiServices::getInstance()->getUserFactory()->newFromName( $username )->getId();
+
+	if ( $userId ) {
+		$id = $userId;
+	}
+
         return true;
     }
 
@@ -199,7 +205,7 @@ class Shibboleth extends PluggableAuth {
 
         $groups = filter_input(INPUT_SERVER, $attr_name);
 
-        if (empty($groups)) {
+        if (!$GLOBALS['wgShibboleth_GroupMap_attr_may_be_empty'] and empty($groups)) {
             throw new Exception(wfMessage('shibboleth-attr-empty-groupmap-attr')->plain());
         }
 
