@@ -77,17 +77,23 @@ $wgShibboleth_DisplayNameFormatString | null | Allows a custom format string whi
 ### Display name
 You can either use a single SAML attribute as display name or multiple attributes:
 
- $wgShibboleth_DisplayName = 'displayName';
- $wgShibboleth_DisplayName = ['givenName', 'sn'];
+```php
+$wgShibboleth_DisplayName = 'displayName';
+$wgShibboleth_DisplayName = ['givenName', 'sn'];
+```
 
 If you define multiple attributes their values are concatenated with spaces. If you still want more you can use a user defined format string:
 
- $wgShibboleth_DisplayName = ["displayName", "mail"];
- $wgShibboleth_DisplayNameFormatString = "%s &lt;%s&gt;";
+```php
+$wgShibboleth_DisplayName = ["displayName", "mail"];
+$wgShibboleth_DisplayNameFormatString = "%s &lt;%s&gt;";
+```
 
 This results in
 
- Christopher Odenbach <odenbach@uni-paderborn.de>
+```php
+Christopher Odenbach <odenbach@uni-paderborn.de>
+```
 
 
 ### Group mapping
@@ -101,6 +107,7 @@ Example:
 * For some reason you may also want to grant sysop rights to someone with a special pairwise-id but who is not in the administrator group.
 * Create a group map in your LocalSettings.php as follows:
 
+```php
  $wgShibboleth_GroupMap = [
      'groups' => [
          'administrator' => 'sysop',
@@ -109,6 +116,7 @@ Example:
          'OTCROY5S7ZWGWYD6Z7EAXRXMA44YMW5S@uni-paderborn.de' => 'sysop',
      ],
  ];
+```
 
 You can come up with rather complex mappings that fit your needs. If you have more than one attribute from SAML, just add it to the array with the array of values you like to map.
 
