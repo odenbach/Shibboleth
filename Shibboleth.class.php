@@ -72,46 +72,74 @@ class Shibboleth extends PluggableAuth {
         } else {
             $authManager = AuthManager::singleton();
         }
-        $groups = $authManager->getAuthenticationSessionData('shib_attr');
+        $userattrs = $authManager->getAuthenticationSessionData('shib_attr');
 
-        if (!empty($groups)) {
-            $groups_array = explode(";", $groups);
+        wfDebugLog( 'Shibboleth', "Doing role mapping");
+        $new_roles = array();
+        if (!empty($userattrs)) {
+            # loop over all user-provided attributes we are interested in
+            foreach ($userattrs as $attr => $value) {
+                wfDebugLog( 'Shibboleth', "__Checking $attr ($value)");
+                # some attributes (e.g. entitlement) may carry multiple values, separated by semicolons
+                $groups_array = explode(";", $value);
 
-            // Check 'sysop' in LocalSettings.php
-            $sysop = $GLOBALS['wgShibboleth_GroupMap']['sysop'];
+                # loop over all configured values of this attribute
+                foreach ($GLOBALS['wgShibboleth_GroupMap'][$attr] as $group => $role) {
+                    wfDebugLog( 'Shibboleth', "____Looking for $group");
+                    $regex = False;
+                    # check if regex given
+                    if (preg_match ('/^\/.*\/$/', $group)) {
+                        $regex = True;
+                    }
 
-            if (in_array($sysop, $groups_array)) {
-                if (method_exists(MediaWikiServices::class, 'getUserGroupManager')) {
-                    // MW 1.35+
-                    MediaWikiServices::getInstance()->getUserGroupManager()->addUserToGroup($user, 'sysop');
-                } else {
-                    $user->addGroup('sysop');
-                }
-            } else {
-                if (method_exists(MediaWikiServices::class, 'getUserGroupManager')) {
-                    // MW 1.35+
-                    MediaWikiServices::getInstance()->getUserGroupManager()->removeUserFromGroup($user, 'sysop');
-                } else {
-                    $user->removeGroup('sysop');
+                    # loop over all user provided values of this attribute
+                    foreach ($groups_array as $givenGroup) {
+                        if ($regex) {
+                            wfDebugLog( 'Shibboleth', "______RegEx matching $givenGroup");
+                        } else {
+                            wfDebugLog( 'Shibboleth', "______Matching $givenGroup");
+                        }
+                        if (($regex and preg_match ($group, $givenGroup)) or (!$regex and $givenGroup === $group)) {
+                            if (!in_array ($role, $new_roles)) {
+                                wfDebugLog( 'Shibboleth', "________Match! Results in role $role");
+                                array_push ($new_roles, $role);
+                            }
+                        }
+                    }
                 }
             }
+        }
 
-            // Check 'bureaucrat' in LocalSettings.php
-            $bureaucrat = $GLOBALS['wgShibboleth_GroupMap']['bureaucrat'];
+        # get old user groups
+        $old_roles = array();
+        if (method_exists(MediaWikiServices::class, 'getUserGroupManager')) {
+            // MW 1.35+
+            $old_roles = MediaWikiServices::getInstance()->getUserGroupManager()->getUserGroups($user);
+        } else {
+            $old_roles = $user->getGroups();
+        }
 
-            if (in_array($bureaucrat, $groups_array)) {
+        # compare current and new roles
+        foreach ($old_roles as $role) {
+            if (!in_array ($role, $new_roles)) {
+                wfDebugLog( 'Shibboleth', "__Removing role $role");
                 if (method_exists(MediaWikiServices::class, 'getUserGroupManager')) {
                     // MW 1.35+
-                    MediaWikiServices::getInstance()->getUserGroupManager()->addUserToGroup($user, 'bureaucrat');
+                    MediaWikiServices::getInstance()->getUserGroupManager()->removeUserFromGroup($user, $role);
                 } else {
-                    $user->addGroup('bureaucrat');
+                    $user->removeGroup($role);
                 }
-            } else {
+            }
+        }
+
+        foreach ($new_roles as $role) {
+            if (!in_array($role, $old_roles)) {
+                wfDebugLog( 'Shibboleth', "__Adding role $role");
                 if (method_exists(MediaWikiServices::class, 'getUserGroupManager')) {
                     // MW 1.35+
-                    MediaWikiServices::getInstance()->getUserGroupManager()->removeUserFromGroup($user, 'bureaucrat');
+                    MediaWikiServices::getInstance()->getUserGroupManager()->addUserToGroup($user, $role);
                 } else {
-                    $user->removeGroup('bureaucrat');
+                    $user->addGroup($role);
                 }
             }
         }
@@ -197,15 +225,13 @@ class Shibboleth extends PluggableAuth {
 
     private function checkGroupMap() {
 
-        $attr_name = $GLOBALS['wgShibboleth_GroupMap']['attr_name'];
-
-        if (empty($attr_name)) {
-            throw new Exception(wfMessage('shibboleth-wg-empty-groupmap-attr')->plain());
+        foreach ($GLOBALS['wgShibboleth_GroupMap'] as $attr => $line) {
+            $varlist[$attr] = FILTER_DEFAULT;
         }
 
-        $groups = filter_input(INPUT_SERVER, $attr_name);
+        $userattrs = filter_input_array (INPUT_SERVER, $varlist, False);
 
-        if (!$GLOBALS['wgShibboleth_GroupMap_attr_may_be_empty'] and empty($groups)) {
+        if (!$GLOBALS['wgShibboleth_GroupMap_attr_may_be_empty'] and empty($userattrs)) {
             throw new Exception(wfMessage('shibboleth-attr-empty-groupmap-attr')->plain());
         }
 
@@ -215,7 +241,7 @@ class Shibboleth extends PluggableAuth {
         } else {
             $authManager = AuthManager::singleton();
         }
-        $authManager->setAuthenticationSessionData('shib_attr', $groups);
+        $authManager->setAuthenticationSessionData('shib_attr', $userattrs);
     }
 
     private function getLogoutURL() {
