@@ -158,14 +158,31 @@ class Shibboleth extends PluggableAuth {
             throw new Exception(wfMessage('shibboleth-wg-empty-displayname')->plain());
         } else {
             $displayName = $GLOBALS['wgShibboleth_DisplayName'];
+	    # force into an array
+	    if (!is_array ($displayName)) {
+	        $displayName = [$displayName];
+            }
         }
 
-        // Real name Shibboleth attribute check
-        if (empty(filter_input(INPUT_SERVER, $displayName))) {
-            return '';
-        } else {
-            return filter_input(INPUT_SERVER, $displayName);
+
+        foreach ($displayName as $attr) {
+            $varlist[$attr] = FILTER_DEFAULT;
         }
+
+        $userattrs = filter_input_array (INPUT_SERVER, $varlist, False);
+
+	if (empty($GLOBALS['wgShibboleth_DisplayNameFormatString'])) {
+	    $list = array();
+	    foreach ($userattrs as $attr) {
+	        array_push ($list, '%s');
+	    }
+	    $format = implode (' ', $list);
+	} else {
+            $format = $GLOBALS['wgShibboleth_DisplayNameFormatString'];
+	}
+
+	return vsprintf ($format, $userattrs);
+
     }
 
     /**

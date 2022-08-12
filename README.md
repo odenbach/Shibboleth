@@ -70,8 +70,25 @@ In addition, the following optional configuration variable is provided:
 
 Flag | Default | Description
 ---- | ------- | -----------
-$wgShibboleth_GroupMap | null | Mapping from SAML attributes to MediaWiki groups of the form: `$wgShibboleth_GroupMap = array('attr_name' => 'groups','sysop' => 'wiki_admin','bureaucrat' => 'wiki_editor', '...');` No group mapping is performed if $wgSimpleSAMLphp_GroupMap is null.
+$wgShibboleth_GroupMap | null | Mapping from SAML attributes to MediaWiki groups, see example below. No group mapping is performed if $wgShibboleth_GroupMap is null.
 $wgShibboleth_GroupMap_attr_may_be_empty | false | Allow empty group mapping attribute. Is you use an entitlement for group mapping this is needed to enable people without any entitlement to login.
+$wgShibboleth_DisplayNameFormatString | null | Allows a custom format string which creates the display name (see vsprintf())
+
+### Display name
+You can either use a single SAML attribute as display name or multiple attributes:
+
+ $wgShibboleth_DisplayName = 'displayName';
+ $wgShibboleth_DisplayName = ['givenName', 'sn'];
+
+If you define multiple attributes their values are concatenated with spaces. If you still want more you can use a user defined format string:
+
+ $wgShibboleth_DisplayName = ["displayName", "mail"];
+ $wgShibboleth_DisplayNameFormatString = "%s &lt;%s&gt;";
+
+This results in
+
+ Christopher Odenbach <odenbach@uni-paderborn.de>
+
 
 ### Group mapping
 
@@ -81,7 +98,17 @@ Example:
 
 * Your IdP sends an attribute named "groups" with a list of names like "administrator", "student", "teacher", ... in the SAML response after authentication.
 * All users that have the value "administrator" in the "groups" attribute shall be mapped to the MediaWiki "sysop" group to give them admin rights within your MediaWiki instance.
-* Create a group map in your LocalSettings.php as follows: $wgShibboleth_GroupMap = array('attr_name' => 'groups','sysop' => 'administrator',);
+* For some reason you may also want to grant sysop rights to someone with a special pairwise-id but who is not in the administrator group.
+* Create a group map in your LocalSettings.php as follows:
+
+ $wgShibboleth_GroupMap = [
+     'groups' => [
+         'administrator' => 'sysop',
+     ],
+     'pairwise-id' => [
+         'OTCROY5S7ZWGWYD6Z7EAXRXMA44YMW5S@uni-paderborn.de' => 'sysop',
+     ],
+ ];
 
 You can come up with rather complex mappings that fit your needs. If you have more than one attribute from SAML, just add it to the array with the array of values you like to map.
 
