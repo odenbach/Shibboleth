@@ -1,26 +1,63 @@
 <?php
 
-use \MediaWiki\Auth\AuthManager;
+namespace MediaWiki\Extension\Shibboleth;
+
+use MediaWiki\Auth\AuthManager;
+use MediaWiki\Extension\PluggableAuth\PluggableAuth as PA_Base;
+use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\User\UserFactory;
+use MediaWiki\User\UserIdentity;
+use MWException;
+use RequestContext;
+use SpecialPage;
+use Title;
 
 /**
- * Description of Shibboleth auth class
+ * Class PluggableAuth
  *
- * @author northway
+ * This class provides a pluggable authentication mechanism for MediaWiki, relying on Shibboleth authentication
+ *
+ * @package MediaWiki\Auth
  */
-class Shibboleth extends PluggableAuth {
+class PluggableAuth extends PA_Base {
 
-    /**
-     * Override PluggableAuth authenticate function
-     *
-     * @param int|NULL $id
-     * @param string $username
-     * @param string $realname
-     * @param string $email
-     * @param string $errorMessage
-     * @return boolean
-     */
-    public function authenticate(&$id, &$username, &$realname, &$email, &$errorMessage) {
+	 /**
+         * @var AuthManager
+         */
+        private AuthManager $authManager;
+
+        /**
+         * @var UserFactory
+         */
+        private UserFactory $userFactory;
+
+
+        /**
+         * @param UserFactory $userFactory
+         * @param AuthManager $authManager
+         */
+        public function __construct( UserFactory $userFactory, AuthManager $authManager ) {
+                $this->userFactory = $userFactory;
+                $this->authManager = $authManager;
+                $this->setLogger( LoggerFactory::getInstance( 'Shibboleth' ) );
+                $this->getLogger()->debug( 'Constructed ' . self::class );
+        }
+
+        /**
+         * @inheritDoc
+         * @throws MWException
+         */
+        public function authenticate( ?int &$id, ?string &$username, ?string &$realname, ?string &$email, ?string &$errorMessage ): bool {
+                $this->getLogger()->debug( 'Entering authenticate' );
+
+                $currentTitle = RequestContext::getMain()->getTitle();
+                $titleOfMySpecialPage = SpecialPage::getTitleFor( SpecialShibboleth::NAME_OF_SPECIAL_PAGE );
+                if ( $currentTitle->getPrefixedText() != $titleOfMySpecialPage->getPrefixedText() ) {
+                        $this->redirectToSpecialPage( $currentTitle, $titleOfMySpecialPage );
+                }
+                // from this point on assume, that we are on our special page.
+                $principal = $_SERVER['REMOTE_USER'] ?? $_SERVER['PHP_AUTH_USER'] ?? $_SERVER['REDIRECT_REMOTE_USER'] ?? null;
 
         $id = null;
         $username = $this->getUsername();
@@ -31,11 +68,10 @@ class Shibboleth extends PluggableAuth {
             $this->checkGroupMap();
         }
 
-	$userId = MediaWiki\MediaWikiServices::getInstance()->getUserFactory()->newFromName( $username )->getId();
-
-	if ( $userId ) {
-		$id = $userId;
-	}
+		$user = $this->userFactory->newFromName( $username );
+		if ( $user !== false && $user->getId() !== 0 ) {
+			$id = $user->getId();
+		}
 
         return true;
     }

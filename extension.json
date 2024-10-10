@@ -1,17 +1,15 @@
 {
 	"name": "Shibboleth",
-	"version": "1.0",
-	"author": [
-		"[https://niif.hu northway]"
-	],
+	"version": "2.0",
+	"author": [ "Christopher Odenbach" ],
 	"url": "https://www.mediawiki.org/wiki/Extension:Shibboleth",
 	"descriptionmsg": "shibboleth-desc",
 	"license-name": "MIT",
 	"type": "other",
 	"requires": {
-		"MediaWiki": ">= 1.31.0",
+		"MediaWiki": ">= 1.38.0",
 		"extensions": {
-			"PluggableAuth": ">= 5.1"
+			"PluggableAuth": "7.*"
 		}
 	},
 	"MessagesDirs": {
@@ -20,18 +18,49 @@
 		]
 	},
 	"config": {
-		"Shibboleth_Username": "eppn",
-		"Shibboleth_Email": "mail",
-		"Shibboleth_DisplayName": "displayName",
-		"Shibboleth_GroupMap": null,
-		"Shibboleth_GroupMap_attr_may_be_empty": false,
-		"PluggableAuth_Class": "Shibboleth"
+		"Shibboleth_Username": {
+			"value": "eppn"
+		},
+		"Shibboleth_Email": {
+			"value": "mail"
+		},
+		"Shibboleth_DisplayName": {
+			"value": "displayName"
+		},
+		"Shibboleth_GroupMap": {
+			"value": null
+		},
+		"Shibboleth_GroupMap_attr_may_be_empty": {
+			"value": false
+		}
 	},
 	"AutoloadClasses": {
-		"Shibboleth": "Shibboleth.class.php"
+		"MediaWiki\\Extension\\Shibboleth": "src/"
 	},
 	"Hooks": {
-		"PluggableAuthPopulateGroups": "Shibboleth::populateGroups"
 	},
-	"manifest_version": 1
+	"callback": "MediaWiki\\Extension\\Shibboleth\\ShibbolethHooks::onRegistration",
+	"attributes": {
+		"PluggableAuth": {
+			"Shibboleth": {
+				"class": "MediaWiki\\Extension\\Shibboleth\\PluggableAuth",
+				"services": [
+					"UserFactory",
+					"AuthManager"
+				]
+			},
+			"LoginSpecialPages": [ "Shibboleth" ]
+		}
+	},
+	"SpecialPages": {
+		"Shibboleth": {
+			"class": "\\MediaWiki\\Extension\\Shibboleth\\SpecialShibboleth",
+			"services": [
+				"PluggableAuthFactory",
+				"AuthManager",
+				"PluggableAuth.GroupProcessorRunner"
+			]
+		}
+	},
+	"manifest_version": 2
 }
