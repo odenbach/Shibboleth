@@ -1,17 +1,18 @@
 {
 	"name": "Shibboleth",
-	"version": "1.0",
-	"author": [
-		"[https://niif.hu northway]"
-	],
+	"version": "2.0",
+	"author": [ "Christopher Odenbach" ],
 	"url": "https://www.mediawiki.org/wiki/Extension:Shibboleth",
 	"descriptionmsg": "shibboleth-desc",
-	"license-name": "MIT",
+	"license-name": "GPL-2.0-or-later",
 	"type": "other",
 	"requires": {
-		"MediaWiki": ">= 1.31.0",
+		"MediaWiki": ">= 1.38.0",
+		"platform": {
+			"php": ">=7.1"
+		},
 		"extensions": {
-			"PluggableAuth": ">= 5.1"
+			"PluggableAuth": "7.*"
 		}
 	},
 	"MessagesDirs": {
@@ -19,19 +20,56 @@
 			"i18n"
 		]
 	},
+	"ConfigRegistry": {
+		"Shibboleth": "GlobalVarConfig::newInstance"
+	},
 	"config": {
-		"Shibboleth_Username": "eppn",
-		"Shibboleth_Email": "mail",
-		"Shibboleth_DisplayName": "displayName",
-		"Shibboleth_GroupMap": null,
-		"Shibboleth_GroupMap_attr_may_be_empty": false,
-		"PluggableAuth_Class": "Shibboleth"
+		"Shibboleth_Username": {
+			"value": "eppn"
+		},
+		"Shibboleth_Email": {
+			"value": "mail"
+		},
+		"Shibboleth_DisplayName": {
+			"value": "displayName"
+		},
+		"Shibboleth_GroupMap": {
+			"value": null
+		},
+		"Shibboleth_GroupMap_attr_may_be_empty": {
+			"value": false
+		},
+		"Shibboleth_DisplayNameFormatString": {
+			"value": null
+		}
 	},
-	"AutoloadClasses": {
-		"Shibboleth": "Shibboleth.class.php"
+	"AutoloadNamespaces": {
+		"MediaWiki\\Extension\\Shibboleth\\": "src/"
 	},
-	"Hooks": {
-		"PluggableAuthPopulateGroups": "Shibboleth::populateGroups"
+	"Hooks": {},
+	"callback": "MediaWiki\\Extension\\Shibboleth\\ShibbolethHooks::onRegistration",
+	"attributes": {
+		"PluggableAuth": {
+			"Shibboleth": {
+				"class": "MediaWiki\\Extension\\Shibboleth\\PluggableAuth",
+				"services": [
+					"UserFactory",
+					"AuthManager",
+					"UserGroupManager"
+				]
+			},
+			"LoginSpecialPages": [ "Shibboleth" ]
+		}
 	},
-	"manifest_version": 1
+	"SpecialPages": {
+		"Shibboleth": {
+			"class": "\\MediaWiki\\Extension\\Shibboleth\\SpecialShibboleth",
+			"services": [
+				"PluggableAuthFactory",
+				"AuthManager",
+				"PluggableAuth.GroupProcessorRunner"
+			]
+		}
+	},
+	"manifest_version": 2
 }

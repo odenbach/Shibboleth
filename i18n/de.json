@@ -1,8 +1,16 @@
 {
 	"@metadata": {
 		"authors": [
-			"Umlaut"
+			"Christopher Odenbach"
 		]
 	},
-	"shibboleth-attr-empty-groupmap-attr": "Shibboleth: das Attribut GroupMap ist nicht vorhanden"
+	"shibboleth-desc": "Ermöglicht Shibboleth-Authentifizierung mithilfe von PluggableAuth",
+	"shibboleth-wg-empty-displayname": "Die <var>wgShibboleth_DisplayName</var> Konfigurationsvariable in LocalSettings.php ist leer.",
+	"shibboleth-wg-empty-email": "Die <var>wgShibboleth_Email</var> Konfigurationsvariable in LocalSettings.php ist leer.",
+	"shibboleth-wg-empty-username": "Die <var>wgShibboleth_Username</var> Konfigurationsvariable in LocalSettings.php ist leer.",
+	"shibboleth-wg-empty-logout-base-url": "Die <var>wgShibboleth_Logout_Base_Url</var> Konfigurationsvariable in LocalSettings.php ist leer.",
+	"shibboleth-wg-empty-logout-target-url": "Die <var>wgShibboleth_Logout_Target_Url</var> Konfigurationsvariable in LocalSettings.php ist leer.",
+	"shibboleth-attr-empty-username": "Shibboleth: Das username Attribut ist nicht gesetzt.",
+	"shibboleth-attr-empty-groupmap-attr": "Shibboleth: Keines der für die Gruppenzuordnung genutzten Attribute ist gesetzt.",
+	"shibboleth-login-button-label": "Shibboleth"
 }

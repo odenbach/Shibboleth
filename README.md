@@ -1,12 +1,12 @@
 # MediaWiki Shibboleth extension
 
-The **Shibboleth** extension extends the [PluggableAuth](https://www.mediawiki.org/wiki/Extension:PluggableAuth) extension to provide authentication using [Shibboleth Apache module](https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPApacheConfig).
+The **Shibboleth** extension uses the [PluggableAuth](https://www.mediawiki.org/wiki/Extension:PluggableAuth) extension to provide authentication using [Shibboleth Apache module](https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPApacheConfig).
 
-Recommended MediaWiki version: **1.29+**
+Required MediaWiki version: **1.38+**
 
 ## Required packages and settings
 
-In order to use Shibboleth Apache module as an authentication method in your wiki, you need have a functional Shibboleth Service Provider (SP).
+In order to use Shibboleth Apache module as an authentication method in your wiki, you need to have a functional Shibboleth Service Provider (SP).
 
 Install Shibboleth Apache modul on Debian/Ubuntu linux:
 
@@ -17,11 +17,13 @@ Install Shibboleth Apache modul on Debian/Ubuntu linux:
 ### Apache vhost config
 
 ```apache
-<Location /index.php/*:PluggableAuthLogin>
-	AuthType shibboleth
-	ShibRequestSetting applicationId default
-	ShibRequestSetting requireSession true
-	Require valid-user
+<Location /index.php>
+	<If "%{QUERY_STRING} =~ /title=[^:]+:Shibboleth/">
+		AuthType shibboleth
+		ShibRequestSetting applicationId default
+		ShibRequestSetting requireSession true
+		Require valid-user
+        </If>
 </Location>
 ```
 
@@ -31,12 +33,12 @@ You should replace `ShibRequestSetting applicationId default` with `ShibUseHeade
 
 ```apache
 <Location /index.php>
-  <If "%{QUERY_STRING} =~ /title=(.+):PluggableAuthLogin/">
-  AuthType shibboleth
-  ShibRequestSetting requireSession true
-  Require valid-user
-  ShibUseHeaders On
-  </If>
+	<If "%{QUERY_STRING} =~ /title=(.+):Shibboleth/">
+		AuthType shibboleth
+		ShibRequestSetting requireSession true
+		Require valid-user
+		ShibUseHeaders On
+	</If>
 </Location>
 ```
 
@@ -60,9 +62,9 @@ Values must be provided for the following mandatory configuration variables:
 
 Flag | Default | Description
 ---- | ------- | -----------
-$wgShibboleth_Username | no default value | The name of the attribute to be used for the user's username.
-$wgShibboleth_Email | no default value | The name of the attribute to be used for the user's email address.
-$wgShibboleth_DisplayName | no default value | The name of the attribute(s) to be used for the user's real name.
+$wgShibboleth_Username | eppn | The name of the attribute to be used for the user's username.
+$wgShibboleth_Email | mail | The name of the attribute to be used for the user's email address.
+$wgShibboleth_DisplayName | displayName | The name of the attribute(s) to be used for the user's real name, see example below.
 $wgShibboleth_Logout_Base_Url | no default value | Single Logout (SLO) base URL
 $wgShibboleth_Logout_Target_Url | no default value | Single Logout (SLO) target URL
 
@@ -131,6 +133,5 @@ Shibboleth Single Logout (SLO) URL structure
 `https://wiki.example.org/Shibboleth.sso/Logout?return=https://wiki.example.org/index.php`
 
 ## Known Bugs
-(fixed since PluggableAuth >= 5.5)
 
-The very first time when the user authenticates with Shibboleth, **$wgShibboleth_GroupMap** does not take effect due [T184736](https://phabricator.wikimedia.org/T184736) bug. It requires a relogin (logout then login) to be able to map the given configuration.
+none
