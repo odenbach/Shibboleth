@@ -4,10 +4,13 @@
 	"author": [ "Christopher Odenbach" ],
 	"url": "https://www.mediawiki.org/wiki/Extension:Shibboleth",
 	"descriptionmsg": "shibboleth-desc",
-	"license-name": "MIT",
+	"license-name": "GPL-2.0-or-later",
 	"type": "other",
 	"requires": {
 		"MediaWiki": ">= 1.38.0",
+		"platform": {
+			"php": ">=7.1"
+		},
 		"extensions": {
 			"PluggableAuth": "7.*"
 		}
@@ -16,6 +19,9 @@
 		"Shibboleth": [
 			"i18n"
 		]
+	},
+	"ConfigRegistry": {
+		"Shibboleth": "GlobalVarConfig::newInstance"
 	},
 	"config": {
 		"Shibboleth_Username": {
@@ -32,13 +38,15 @@
 		},
 		"Shibboleth_GroupMap_attr_may_be_empty": {
 			"value": false
+		},
+		"Shibboleth_DisplayNameFormatString": {
+			"value": null
 		}
 	},
-	"AutoloadClasses": {
-		"MediaWiki\\Extension\\Shibboleth": "src/"
+	"AutoloadNamespaces": {
+		"MediaWiki\\Extension\\Shibboleth\\": "src/"
 	},
-	"Hooks": {
-	},
+	"Hooks": {},
 	"callback": "MediaWiki\\Extension\\Shibboleth\\ShibbolethHooks::onRegistration",
 	"attributes": {
 		"PluggableAuth": {
@@ -46,7 +54,8 @@
 				"class": "MediaWiki\\Extension\\Shibboleth\\PluggableAuth",
 				"services": [
 					"UserFactory",
-					"AuthManager"
+					"AuthManager",
+					"UserGroupManager"
 				]
 			},
 			"LoginSpecialPages": [ "Shibboleth" ]

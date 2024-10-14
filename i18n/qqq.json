@@ -8,5 +8,6 @@
 	"shibboleth-wg-empty-username": "Used as error message",
 	"shibboleth-wg-empty-groupmap-attr": "Used as error message",
 	"shibboleth-attr-empty-username": "Used as error message",
-	"shibboleth-attr-empty-groupmap-attr": "Used as error message"
+	"shibboleth-attr-empty-groupmap-attr": "Used as error message",
+	"shibboleth-login-button-label": "This is the labe for the login button"
 }
