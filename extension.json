@@ -33,13 +33,19 @@
 		"Shibboleth_DisplayName": {
 			"value": "displayName"
 		},
+		"Shibboleth_DisplayNameFormatString": {
+			"value": null
+		},
 		"Shibboleth_GroupMap": {
 			"value": null
 		},
 		"Shibboleth_GroupMap_attr_may_be_empty": {
 			"value": false
 		},
-		"Shibboleth_DisplayNameFormatString": {
+		"Shibboleth_Logout_Base_Url": {
+			"value": null
+		},
+		"Shibboleth_Logout_Target_Url": {
 			"value": null
 		}
 	},
