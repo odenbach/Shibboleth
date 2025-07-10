@@ -77,5 +77,8 @@
 			]
 		}
 	},
+	"ExtensionMessagesFiles": {
+		"ShibbolethAlias": "Shibboleth.alias.php"
+	},
 	"manifest_version": 2
 }
