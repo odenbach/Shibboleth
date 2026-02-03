@@ -79,6 +79,7 @@ class PluggableAuth extends PA_Base {
 		if ( $user !== false && $user->getId() !== 0 ) {
 			$id = $user->getId();
 		}
+		$user->addToDatabase();
 		$this->populateGroups ($user, $userattrs);
 	
 		return true;
