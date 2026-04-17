@@ -11,7 +11,7 @@ use MediaWiki\User\UserGroupManager;
 use MWException as Exception;
 use RequestContext;
 use SpecialPage;
-use Title;
+use MediaWiki\Title\Title;
 
 /**
  * Class PluggableAuth
